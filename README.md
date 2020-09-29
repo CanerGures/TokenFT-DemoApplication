@@ -23,7 +23,7 @@ Application is made by the purpose of to try payment options. You need to enter 
 <li><a href="https://material.io/develop/android/docs/getting-started/">Material Design</a></li>
 
 ## Architecture
-The app uses MVVM [Model-View-ViewModel] architecture to have a unidirectional flow of data, separation of concern, testability, and a lot more.
+The app uses MVVM [Model-View-ViewModel] architecture to have a unidirectional flow of data, separation of concern, and a lot more.
 
 ![Architecture](https://developer.android.com/topic/libraries/architecture/images/final-architecture.png)
 
