@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">TokenPaymentDemo</string>
+    <string name="enter_receipt_amount">Enter Receipt Amount</string>
+    <string name="example_250">Example: 250</string>
+    <string name="get_qr">GET QR</string>
+    <string name="scan_qr">SCAN QR</string>
+    <string name="payment">Payment</string>
+</resources>
