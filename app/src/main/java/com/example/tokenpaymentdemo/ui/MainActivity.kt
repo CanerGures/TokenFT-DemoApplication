@@ -1,4 +1,4 @@
-package com.example.tokenpaymentdemo
+package com.example.tokenpaymentdemo.ui
 
 import android.content.DialogInterface
 import android.content.Intent
@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import com.example.tokenpaymentdemo.R
 import com.example.tokenpaymentdemo.model.GetQrBodyModel
 import com.example.tokenpaymentdemo.model.PaymentActionList
 import com.example.tokenpaymentdemo.model.PaymentBodyModel
@@ -74,6 +75,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun paymentTransaction(contents: String) {
         val apiServicePayment = RestApiServicePayment()
+
         val paymentActionList = PaymentActionList(
             3,
             100,
@@ -90,7 +92,6 @@ class MainActivity : AppCompatActivity() {
             "beko Campaign/n2018",
             "beko Campaign Merchant/n2018",
             listOf(paymentInfoList), contents
-
         )
 
         apiServicePayment.paymentService(paymentBody) {
