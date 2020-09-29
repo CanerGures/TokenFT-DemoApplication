@@ -99,7 +99,6 @@ class MainActivity : AppCompatActivity() {
                 val materialAlert = MaterialAlertDialogBuilder(this@MainActivity)
                 materialAlert.setTitle("Alert")
                 materialAlert.setMessage("Transaction Complete!")
-                //materialAlert.background = R.drawable
                 materialAlert.setPositiveButton(
                     "OKAY"
                 ) { dialogInterface: DialogInterface, i: Int ->
