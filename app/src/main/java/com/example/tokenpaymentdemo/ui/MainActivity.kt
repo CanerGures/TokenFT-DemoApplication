@@ -1,18 +1,27 @@
 package com.example.tokenpaymentdemo.ui
 
+
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tokenpaymentdemo.R
 import com.example.tokenpaymentdemo.model.GetQrBodyModel
 import com.example.tokenpaymentdemo.model.PaymentActionList
 import com.example.tokenpaymentdemo.model.PaymentBodyModel
 import com.example.tokenpaymentdemo.model.PaymentInfoList
-import com.example.tokenpaymentdemo.service.RestApiService
-import com.example.tokenpaymentdemo.service.RestApiServicePayment
+import com.example.tokenpaymentdemo.repository.FetchApiQrRepository
+import com.example.tokenpaymentdemo.repository.PaymentRepository
+import com.example.tokenpaymentdemo.service.ApiService
+import com.example.tokenpaymentdemo.service.client.WebClient
+import com.example.tokenpaymentdemo.viewmodel.GetQrViewModel
+import com.example.tokenpaymentdemo.viewmodel.PaymentViewModel
+import com.example.tokenpaymentdemo.viewmodel.util.PaymentViewModelFactory
+import com.example.tokenpaymentdemo.viewmodel.util.ViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.integration.android.IntentIntegrator
@@ -22,17 +31,29 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
     private lateinit var intentIntegrator: IntentIntegrator
 
+    private var viewModel: GetQrViewModel? = null
+    private var paymentViewModel: PaymentViewModel? = null
+
+    private val service: ApiService by lazy { WebClient.buildService(ApiService::class.java) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val editText: EditText = findViewById(R.id.editText)
 
+
+
         intentIntegrator = IntentIntegrator(this)
 
         getQrButton.setOnClickListener {
             val text = editText.text.toString()
-            val number = Integer.valueOf(text)
-            fetchQR(number)
+
+            if (text != "") {
+                val number = Integer.valueOf(text)
+                fetchQR(number)
+            } else {
+                Toast.makeText(this, "Please enter a number!", Toast.LENGTH_LONG).show()
+            }
         }
         scanQrButton.setOnClickListener {
             intentIntegrator.setBeepEnabled(true).initiateScan()
@@ -41,32 +62,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchQR(body: Int) {
-        val apiService = RestApiService()
         val bodyModel = GetQrBodyModel(
             body
         )
-
-        apiService.fetchPayQR(bodyModel) {
-            val barcodeEncoder = BarcodeEncoder()
-            val imgQRCode = barcodeEncoder.encodeBitmap(it?.qRdata, BarcodeFormat.QR_CODE, 600, 600)
-            qrImage.setImageBitmap(imgQRCode)
-            val generatedText = "QR code Generated"
-            textView.text = generatedText
-        }
+        progressBar.visibility = View.VISIBLE
+        val rep = FetchApiQrRepository(service, bodyModel)
+        viewModel = ViewModelFactory(rep).create(GetQrViewModel::class.java)
+        observeQr()
 
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
-        if (intentResult != null) {
-            if (intentResult.contents != null) {
-                paymentButton.visibility = View.VISIBLE
-                payment(intentResult.contents)
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
     private fun payment(contents: String) {
         paymentButton.setOnClickListener {
             paymentTransaction(contents)
@@ -74,8 +78,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun paymentTransaction(contents: String) {
-        val apiServicePayment = RestApiServicePayment()
-
         val paymentActionList = PaymentActionList(
             3,
             100,
@@ -93,13 +95,20 @@ class MainActivity : AppCompatActivity() {
             "beko Campaign Merchant/n2018",
             listOf(paymentInfoList), contents
         )
+        val rep = PaymentRepository(service, paymentBody)
+        paymentViewModel = PaymentViewModelFactory(rep).create(PaymentViewModel::class.java)
+        observePayment()
 
-        apiServicePayment.paymentService(paymentBody) {
-            if (it?.returnCode == 1000) {
 
+    }
+
+    private fun observePayment() {
+        paymentViewModel?.fetch?.observe(this, {
+            if (it != null && it.returnCode == 1000) {
                 val materialAlert = MaterialAlertDialogBuilder(this@MainActivity)
                 materialAlert.setTitle("Alert")
                 materialAlert.setMessage("Transaction Complete!")
+
                 materialAlert.setPositiveButton(
                     "OKAY"
                 ) { dialogInterface: DialogInterface, i: Int ->
@@ -111,15 +120,55 @@ class MainActivity : AppCompatActivity() {
                 val materialAlert = MaterialAlertDialogBuilder(this@MainActivity)
                 materialAlert.setTitle("Alert")
                 materialAlert.setMessage(it?.returnDesc)
+
                 materialAlert.setPositiveButton(
                     "OKAY"
                 ) { dialogInterface: DialogInterface, i: Int ->
                     dialogInterface.cancel()
                 }
                 materialAlert.show()
+            }
+        })
+        viewModel?.empty?.observe(this, {
+
+        })
+
+        viewModel?.dataLoading?.observe(this, {
+
+            Log.e("TAG", "Loading")
+        })
+
+    }
+
+    private fun observeQr() {
+        viewModel?.fetch?.observe(this, {
+            if (it != null) {
+                val barcodeEncoder = BarcodeEncoder()
+                val imgQRCode =
+                    barcodeEncoder.encodeBitmap(it.qRdata, BarcodeFormat.QR_CODE, 600, 600)
+                qrImage.setImageBitmap(imgQRCode)
+                val generatedText = "QR code Generated"
+                textView.text = generatedText
+                progressBar.visibility = View.GONE
 
             }
-        }
+        })
+        viewModel?.empty?.observe(this, {
 
+        })
+
+        viewModel?.dataLoading?.observe(this, {
+        })
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        val intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+        if (intentResult != null) {
+            if (intentResult.contents != null) {
+                paymentButton.visibility = View.VISIBLE
+                payment(intentResult.contents)
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 }

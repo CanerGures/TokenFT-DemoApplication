@@ -9,7 +9,8 @@ import retrofit2.http.Body
 import retrofit2.http.Headers
 import retrofit2.http.POST
 
-interface ApiServiceGetQR {
+interface ApiService {
+
     @Headers(
         "Accept:application/json",
         "Content-type:application/json",
@@ -18,9 +19,8 @@ interface ApiServiceGetQR {
     )
     @POST("api/get_qr_sale")
     fun getQR(@Body getQrBody: GetQrBodyModel): Call<GetQrResponseModel>
-}
 
-interface ApiServicePayment {
+
     @Headers(
         "Accept:application/json",
         "Content-type:application/json",
@@ -28,5 +28,5 @@ interface ApiServicePayment {
         "x-ibm-client-secret:U1yT3qD2jW6oO4uH8gB8bN1xW0xH3aL7jN2lT7dP5aL5rQ1vK4"
     )
     @POST("api/payment")
-    fun getQR(@Body getQrBody: PaymentBodyModel): Call<PaymentResponseModel>
+    fun getPayment(@Body getQrBody: PaymentBodyModel): Call<PaymentResponseModel>
 }

@@ -1,5 +1,6 @@
-package com.example.tokenpaymentdemo.service
+package com.example.tokenpaymentdemo.service.client
 
+import com.example.tokenpaymentdemo.service.util.getUnsafeOkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

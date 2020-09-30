@@ -5,4 +5,5 @@
     <string name="get_qr">GET QR</string>
     <string name="scan_qr">SCAN QR</string>
     <string name="payment">Payment</string>
+    <string name="qrcode">QrCode</string>
 </resources>
