@@ -2,7 +2,7 @@
 <a href="https://android-arsenal.com/api?level=21"><img src="https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat" alt="API" /></a>
 
 
-# TokenFT-DemoApplication
+# TokenFT-DemoApplication MVVM+Repo
 
 Application is made by the purpose of to try payment options. You need to enter the receipt amount to the text box. Then you will get a QR code. You can proceed to payment with that code. In the application, you can also scan the barcode which comes from the backend and then you may select the button "Payment". If the QR code is valid, the transaction will complete. If there is an error, the error will be shown in an alert dialog. 
 
