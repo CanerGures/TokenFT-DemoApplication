@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private var viewModel: GetQrViewModel? = null
     private var paymentViewModel: PaymentViewModel? = null
 
+
     private val service: ApiService by lazy { WebClient.buildService(ApiService::class.java) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,27 +79,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun paymentTransaction(contents: String) {
-        val paymentActionList = PaymentActionList(
-            3,
-            100,
-            949,
-            800
-        )
-        val paymentInfoList = PaymentInfoList(
-            67,
-            listOf(paymentActionList)
-        )
-        val paymentBody = PaymentBodyModel(
-            1000,
-            "success",
-            "beko Campaign/n2018",
-            "beko Campaign Merchant/n2018",
-            listOf(paymentInfoList), contents
-        )
-        val rep = PaymentRepository(service, paymentBody)
-        paymentViewModel = PaymentViewModelFactory(rep).create(PaymentViewModel::class.java)
-        observePayment()
-
+        if (contents != "") {
+            val paymentActionList = PaymentActionList(
+                3,
+                100,
+                949,
+                800
+            )
+            val paymentInfoList = PaymentInfoList(
+                67,
+                listOf(paymentActionList)
+            )
+            val paymentBody = PaymentBodyModel(
+                1000,
+                "success",
+                "beko Campaign/n2018",
+                "beko Campaign Merchant/n2018",
+                listOf(paymentInfoList), contents
+            )
+            val rep = PaymentRepository(service, paymentBody)
+            paymentViewModel = PaymentViewModelFactory(rep).create(PaymentViewModel::class.java)
+            observePayment()
+        } else {
+            Toast.makeText(this, "Something went wrong! Try Again.", Toast.LENGTH_SHORT).show()
+        }
 
     }
 
@@ -115,6 +119,8 @@ class MainActivity : AppCompatActivity() {
                     dialogInterface.cancel()
                 }
                 materialAlert.show()
+                paymentButton.visibility = View.INVISIBLE
+
 
             } else {
                 val materialAlert = MaterialAlertDialogBuilder(this@MainActivity)
@@ -127,6 +133,8 @@ class MainActivity : AppCompatActivity() {
                     dialogInterface.cancel()
                 }
                 materialAlert.show()
+                paymentButton.visibility = View.INVISIBLE
+
             }
         })
         viewModel?.empty?.observe(this, {
@@ -150,6 +158,9 @@ class MainActivity : AppCompatActivity() {
                 val generatedText = "QR code Generated"
                 textView.text = generatedText
                 progressBar.visibility = View.GONE
+                paymentButton.visibility = View.VISIBLE
+                payment(it.qRdata)
+
 
             }
         })
