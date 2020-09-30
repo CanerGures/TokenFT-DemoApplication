@@ -8,7 +8,7 @@ Application is made by the purpose of to try payment options. You need to enter 
 
 ## Screen Shots📱
 
-<p><img height= "400" src="https://media.giphy.com/media/TM8RlBxZcEQFSKLzPg/giphy.gif" alt="Gif1" />
+<p><img height= "400" src="https://media.giphy.com/media/uQtwUAT0l3nTT38cHF/giphy.gif" alt="Gif1" />
 <img height= "400" src="https://media.giphy.com/media/gSPLgiCAeEr5eHJHed/giphy.gif" alt="Gif2" />
 <img height= "400" src="https://media.giphy.com/media/UzNtd0pOaodVVs93bY/giphy.gif" alt="Gif3" /></p>
 
